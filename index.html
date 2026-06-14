@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fox-Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="anjay.css">
+</head>
+<body>
+
+<div id="app-container">
+
+    <!-- LOGIN -->
+    <div id="login-screen" class="screen auth-screen">
+        <div class="center-box">
+            <div class="eyebrow">Selamat datang</div>
+            <div class="title">🦊 Fox-Chat</div>
+            <div class="profile-placeholder" id="login-photo-preview"></div>
+            <div class="btn-group">
+                <label class="btn-small">📁 Dari file
+                    <input type="file" accept="image/*" id="login-file-input" style="display:none;">
+                </label>
+                <label class="btn-small">📷 Ambil foto
+                    <input type="file" accept="image/*" capture="user" id="login-camera-input" style="display:none;">
+                </label>
+            </div>
+            <input type="text" id="login-username" class="input-dark" placeholder="Nama kamu">
+            <button class="btn-green" onclick="loginUser()">Lanjutkan</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP (sidebar + chat panel) -->
+    <div id="main-app-screen" class="screen hidden app-layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="my-id" onclick="navigate('setting-screen')">
+                    <div class="pic" id="sidebar-my-photo"></div>
+                    <div class="meta">
+                        <span class="name" id="sidebar-my-name">Nama</span>
+                        <span class="code" id="sidebar-my-code">Kode: ----</span>
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="icon-btn" title="Tambah kontak" onclick="navigate('add-contact-screen')">➕</div>
+                    <div class="icon-btn" title="Pengaturan" onclick="navigate('setting-screen')">⚙️</div>
+                </div>
+            </div>
+            <div class="search-bar">
+                🔍 <input type="text" id="search-contacts" placeholder="Cari kontak..." oninput="renderContactList()">
+            </div>
+
+            <ul class="chat-list" id="chat-list">
+                <!-- diisi otomatis -->
+            </ul>
+        </div>
+
+        <!-- CHAT PANEL -->
+        <div class="chat-panel" id="chat-panel">
+            <div class="chat-panel-empty" id="chat-panel-empty">
+                <div class="big-emoji">🦊</div>
+                <h3>Pilih kontak untuk mulai chat</h3>
+                <p>Tambahkan teman dengan kode mereka, lalu pilih dari daftar di sebelah kiri untuk mulai mengobrol.</p>
+            </div>
+
+            <!-- Active chat (hidden until a contact is selected) -->
+            <div id="active-chat" class="hidden" style="display:flex; flex-direction:column; height:100%;">
+                <div class="chat-header">
+                    <div class="back-link" onclick="closeActiveChat()">←</div>
+                    <div class="pic" id="active-chat-photo"></div>
+                    <div class="name" id="active-chat-name">Nama</div>
+                </div>
+
+                <div class="chat-area" id="chat-box"></div>
+
+                <div class="image-preview-bar hidden" id="image-preview-bar">
+                    <img id="image-preview-img" src="" alt="preview">
+                    <div class="info-text">Gambar siap dikirim</div>
+                    <div class="cancel-btn" onclick="cancelImagePreview()">✕</div>
+                </div>
+
+                <div class="input-area">
+                    <label class="icon-action" title="Kirim gambar">➕
+                        <input type="file" accept="image/*" id="chat-image-input" style="display:none;">
+                    </label>
+                    <input type="text" id="chat-input" placeholder="Ketik pesan...">
+                    <div class="icon-action send-btn" onclick="kirimPesan()">➤</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="setting-screen" class="screen hidden auth-screen">
+        <div class="center-box">
+            <div class="header-bar" style="margin: -32px -28px 16px; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                <div class="back-link" onclick="navigate('main-app-screen')">← Kembali</div>
+                <strong>Pengaturan</strong>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="profile-placeholder" id="settings-photo"></div>
+            <div class="profile-name">
+                <span id="display-nama">Nama</span>
+                <span class="edit-icon" onclick="navigate('edit-profile-screen')">✎</span>
+            </div>
+            <div class="profile-code">
+                Kode kontak kamu
+                <div class="code-value" id="settings-code" onclick="copyMyCode()">----</div>
+            </div>
+            <div class="hint">Bagikan kode ini ke teman supaya mereka bisa menambahkanmu sebagai kontak.</div>
+
+            <button class="btn-small" style="margin: 0 auto 12px; display:block;" onclick="logoutUser()">🚪 Keluar &amp; hapus profil</button>
+
+            <a href="https://www.google.com/search?q=meme&oq=meme&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg8IARAAGEMYsQMYgAQYigUyDwgCEC4YQxixAxiABBiKBTIMCAMQABhDGIAEGIoFMgoIBBAAGLEDGIAEMgoIBRAAGLEDGIAEMgcIBhAAGIAEMgYIBxBFGDzSAQg0ODY0ajBqN6gCALACAA&sourceid=chrome&ie=UTF-8" target="_blank" class="setting-box" style="margin: 8px 0 0;">
+                <span style="font-size: 18px; margin-right: 10px;">🛠️</span> Bantuan &amp; perbaikan
+            </a>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE -->
+    <div id="edit-profile-screen" class="screen hidden auth-screen">
+        <div class="center-box">
+            <div class="back-link" style="margin-bottom: 12px;" onclick="navigate('setting-screen')">← Kembali</div>
+            <div class="eyebrow">Edit profil</div>
+            <div class="title">Perbarui profil</div>
+            <div class="profile-placeholder" id="edit-photo-preview"></div>
+            <div class="btn-group">
+                <label class="btn-small">📁 Dari file
+                    <input type="file" accept="image/*" id="edit-file-input" style="display:none;">
+                </label>
+                <label class="btn-small">📷 Ambil foto
+                    <input type="file" accept="image/*" capture="user" id="edit-camera-input" style="display:none;">
+                </label>
+            </div>
+            <input type="text" id="edit-username" class="input-dark" placeholder="Nama baru">
+            <button class="btn-green" onclick="saveProfile()">Simpan</button>
+        </div>
+    </div>
+
+    <!-- ADD CONTACT -->
+    <div id="add-contact-screen" class="screen hidden auth-screen">
+        <div class="center-box">
+            <div class="back-link" style="margin-bottom: 12px;" onclick="navigate('main-app-screen')">← Kembali</div>
+            <div class="eyebrow">Kontak baru</div>
+            <div class="title">Tambahkan kontak</div>
+            <div class="hint">Masukkan kode unik teman kamu (4 digit). Kode mereka bisa dilihat di menu Pengaturan.</div>
+            <input type="text" id="add-contact-code" class="input-dark" placeholder="Kode (contoh: 1234)" maxlength="4" style="letter-spacing: 4px; font-weight: 700; text-transform: uppercase;">
+            <button class="btn-green" onclick="tambahKontak()">Tambahkan</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDJfus5V_FZwPvAErsaQ1yrn_xgJbTSWzc",
+        authDomain: "foxchat-9f43d.firebaseapp.com",
+        databaseURL: "https://foxchat-9f43d-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "foxchat-9f43d",
+        storageBucket: "foxchat-9f43d.firebasestorage.app",
+        messagingSenderId: "335875720182",
+        appId: "1:335875720182:web:79d1a62785aaa247b57dd7",
+        measurementId: "G-0DCHDGQ392"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ====== State ======
+    let myId = null;       // unique user id, generated once, stored in localStorage
+    let myCode = null;     // 4-digit shareable code
+    let myName = "Anonim";
+    let myPhoto = "";       // base64 data URL
+
+    let contactsData = {};  // { [contactId]: { name, photo, code } }
+    let lastMessages = {};  // { [contactId]: { text, image, waktu, from } }
+    let activeContactId = null;
+    let pendingImageData = null; // base64 image staged for sending
+    let chatListenerRef = null;
+    let chatListenerHandler = null;
+
+    // ====== Helpers ======
+    function setPhotoEl(el, dataUrl) {
+        if (!el) return;
+        if (dataUrl) {
+            el.style.backgroundImage = `url('${dataUrl}')`;
+            el.classList.add("has-photo");
+        } else {
+            el.style.backgroundImage = "";
+            el.classList.remove("has-photo");
+        }
+    }
+
+    function fileToDataUrl(file, callback) {
+        const reader = new FileReader();
+        reader.onload = (e) => callback(e.target.result);
+        reader.readAsDataURL(file);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function generateId() {
+        return 'u_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    }
+
+    function generateCode() {
+        return String(Math.floor(1000 + Math.random() * 9000)); // 4 digit
+    }
+
+    function chatIdFor(a, b) {
+        return [a, b].sort().join('__');
+    }
+
+    function formatTime(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ====== Profile apply ======
+    function applyProfileEverywhere() {
+        document.getElementById('display-nama').innerText = myName;
+        document.getElementById('settings-code').innerText = myCode || '----';
+        document.getElementById('sidebar-my-name').innerText = myName;
+        document.getElementById('sidebar-my-code').innerText = 'Kode: ' + (myCode || '----');
+
+        setPhotoEl(document.getElementById('settings-photo'), myPhoto);
+        setPhotoEl(document.getElementById('login-photo-preview'), myPhoto);
+        setPhotoEl(document.getElementById('edit-photo-preview'), myPhoto);
+        setPhotoEl(document.getElementById('sidebar-my-photo'), myPhoto);
+    }
+
+    function copyMyCode() {
+        if (!myCode) return;
+        navigator.clipboard?.writeText(myCode).then(() => {
+            showToast('Kode disalin: ' + myCode);
+        }).catch(() => {
+            showToast('Kode kamu: ' + myCode);
+        });
+    }
+
+    // ====== Persistence (local identity) ======
+    function saveProfileLocal() {
+        localStorage.setItem('foxchat_profile', JSON.stringify({
+            id: myId, code: myCode, name: myName, photo: myPhoto
+        }));
+    }
+
+    function loadProfileLocal() {
+        const raw = localStorage.getItem('foxchat_profile');
+        if (!raw) return false;
+        try {
+            const data = JSON.parse(raw);
+            if (!data.id || !data.code) return false;
+            myId = data.id;
+            myCode = data.code;
+            myName = data.name || "Anonim";
+            myPhoto = data.photo || "";
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // ====== Push my profile to Firebase ======
+    function pushMyProfileToDb() {
+        if (!myId) return;
+        db.ref('users/' + myId).set({
+            name: myName,
+            photo: myPhoto || "",
+            code: myCode
+        });
+        db.ref('users_by_code/' + myCode).set(myId);
+    }
+
+    // ====== Auth flow ======
+    function loginUser() {
+        const inputNama = document.getElementById('login-username').value;
+        if (inputNama.trim() === "") {
+            alert("Harap isi nama terlebih dahulu!");
+            return;
+        }
+        myName = inputNama.trim();
+        myId = generateId();
+        myCode = generateCode();
+
+        saveProfileLocal();
+        pushMyProfileToDb();
+        applyProfileEverywhere();
+        startApp();
+    }
+
+    function logoutUser() {
+        if (!confirm("Keluar dan hapus profil dari perangkat ini? Kontak & riwayat chat tidak akan terhapus dari server, tapi kamu perlu kode baru untuk masuk lagi.")) return;
+        localStorage.removeItem('foxchat_profile');
+        myId = null;
+        myCode = null;
+        myName = "Anonim";
+        myPhoto = "";
+        contactsData = {};
+        lastMessages = {};
+        activeContactId = null;
+        document.getElementById('login-username').value = "";
+        applyProfileEverywhere();
+        navigate('login-screen');
+    }
+
+    function saveProfile() {
+        const newName = document.getElementById('edit-username').value.trim();
+        if (newName !== "") {
+            myName = newName;
+        }
+        saveProfileLocal();
+        pushMyProfileToDb();
+        applyProfileEverywhere();
+        navigate('setting-screen');
+    }
+
+    // ====== Photo input wiring ======
+    function wirePhotoInput(inputId, targetPreviewIds) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            fileToDataUrl(file, (dataUrl) => {
+                myPhoto = dataUrl;
+                targetPreviewIds.forEach(id => setPhotoEl(document.getElementById(id), myPhoto));
+                saveProfileLocal();
+                pushMyProfileToDb();
+            });
+        });
+    }
+
+    wirePhotoInput('login-file-input', ['login-photo-preview', 'settings-photo', 'edit-photo-preview', 'sidebar-my-photo']);
+    wirePhotoInput('login-camera-input', ['login-photo-preview', 'settings-photo', 'edit-photo-preview', 'sidebar-my-photo']);
+    wirePhotoInput('edit-file-input', ['edit-photo-preview', 'settings-photo', 'login-photo-preview', 'sidebar-my-photo']);
+    wirePhotoInput('edit-camera-input', ['edit-photo-preview', 'settings-photo', 'login-photo-preview', 'sidebar-my-photo']);
+
+    // ====== Contacts ======
+    function tambahKontak() {
+        const codeInput = document.getElementById('add-contact-code');
+        const code = codeInput.value.trim();
+
+        if (!/^\d{4}$/.test(code)) {
+            showToast('Masukkan kode 4 digit yang valid');
+            return;
+        }
+        if (code === myCode) {
+            showToast('Itu kode kamu sendiri 🙂');
+            return;
+        }
+
+        db.ref('users_by_code/' + code).once('value').then(snap => {
+            const theirId = snap.val();
+            if (!theirId) {
+                showToast('Kode tidak ditemukan');
+                return;
+            }
+            db.ref('users/' + theirId).once('value').then(userSnap => {
+                const theirData = userSnap.val();
+                if (!theirData) {
+                    showToast('Pengguna tidak ditemukan');
+                    return;
+                }
+                // mutual contact add
+                db.ref('contacts/' + myId + '/' + theirId).set(true);
+                db.ref('contacts/' + theirId + '/' + myId).set(true);
+
+                codeInput.value = '';
+                showToast('Kontak "' + theirData.name + '" ditambahkan');
+                navigate('main-app-screen');
+            });
+        });
+    }
+
+    function listenToContacts() {
+        db.ref('contacts/' + myId).on('value', (snap) => {
+            const ids = snap.val() ? Object.keys(snap.val()) : [];
+
+            // remove contacts that no longer exist
+            Object.keys(contactsData).forEach(id => {
+                if (!ids.includes(id)) delete contactsData[id];
+            });
+
+            ids.forEach(contactId => {
+                // listen to each contact's profile (name/photo can change)
+                db.ref('users/' + contactId).on('value', (userSnap) => {
+                    const data = userSnap.val();
+                    if (!data) return;
+                    contactsData[contactId] = data;
+                    renderContactList();
+                    if (activeContactId === contactId) updateActiveChatHeader();
+                });
+
+                // listen to last message for preview
+                listenLastMessage(contactId);
+            });
+
+            renderContactList();
+        });
+    }
+
+    function listenLastMessage(contactId) {
+        const cId = chatIdFor(myId, contactId);
+        db.ref('chats/' + cId + '/messages').limitToLast(1).on('value', (snap) => {
+            let last = null;
+            snap.forEach(child => { last = child.val(); });
+            lastMessages[contactId] = last;
+            renderContactList();
+        });
+    }
+
+    // ====== Rendering: contact / chat list ======
+    function renderContactList() {
+        const list = document.getElementById('chat-list');
+        const searchTerm = (document.getElementById('search-contacts').value || '').toLowerCase();
+
+        const entries = Object.entries(contactsData).filter(([id, data]) => {
+            return data.name.toLowerCase().includes(searchTerm);
+        });
+
+        // sort by last message time desc
+        entries.sort((a, b) => {
+            const ta = lastMessages[a[0]]?.waktu || 0;
+            const tb = lastMessages[b[0]]?.waktu || 0;
+            return tb - ta;
+        });
+
+        if (entries.length === 0) {
+            list.innerHTML = `<li class="chat-list-empty">Belum ada kontak.<br>Tekan ➕ untuk menambahkan teman dengan kode mereka.</li>`;
+            return;
+        }
+
+        list.innerHTML = '';
+        entries.forEach(([contactId, data]) => {
+            const li = document.createElement('li');
+            li.className = 'chat-item' + (contactId === activeContactId ? ' active' : '');
+            li.onclick = () => openChat(contactId);
+
+            const pic = document.createElement('div');
+            pic.className = 'pic';
+            setPhotoEl(pic, data.photo);
+
+            const info = document.createElement('div');
+            info.className = 'info';
+
+            const row1 = document.createElement('div');
+            row1.className = 'row1';
+            const h4 = document.createElement('h4');
+            h4.innerText = data.name;
+            const time = document.createElement('span');
+            time.className = 'time';
+            const last = lastMessages[contactId];
+            time.innerText = last ? formatTime(last.waktu) : '';
+            row1.appendChild(h4);
+            row1.appendChild(time);
+
+            const p = document.createElement('p');
+            if (last) {
+                if (last.image) {
+                    p.innerText = (last.from === myId ? 'Kamu: ' : '') + '📷 Gambar';
+                } else {
+                    p.innerText = (last.from === myId ? 'Kamu: ' : '') + (last.text || '');
+                }
+            } else {
+                p.innerText = 'Mulai ngobrol...';
+            }
+
+            info.appendChild(row1);
+            info.appendChild(p);
+
+            li.appendChild(pic);
+            li.appendChild(info);
+            list.appendChild(li);
+        });
+    }
+
+    // ====== Chat panel ======
+    function updateActiveChatHeader() {
+        const data = contactsData[activeContactId];
+        if (!data) return;
+        document.getElementById('active-chat-name').innerText = data.name;
+        setPhotoEl(document.getElementById('active-chat-photo'), data.photo);
+    }
+
+    function openChat(contactId) {
+        activeContactId = contactId;
+
+        document.getElementById('chat-panel-empty').classList.add('hidden');
+        document.getElementById('active-chat').classList.remove('hidden');
+        document.getElementById('main-app-screen').classList.add('show-chat');
+
+        updateActiveChatHeader();
+        renderContactList();
+
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = '';
+
+        // detach previous listener
+        if (chatListenerRef && chatListenerHandler) {
+            chatListenerRef.off('child_added', chatListenerHandler);
+        }
+
+        const cId = chatIdFor(myId, contactId);
+        chatListenerRef = db.ref('chats/' + cId + '/messages');
+
+        chatListenerHandler = function(snapshot) {
+            const data = snapshot.val();
+            renderBubble(data);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        chatListenerRef.on('child_added', chatListenerHandler);
+    }
+
+    function closeActiveChat() {
+        document.getElementById('main-app-screen').classList.remove('show-chat');
+    }
+
+    function renderBubble(data) {
+        const chatBox = document.getElementById('chat-box');
+        const isMe = data.from === myId;
+
+        const row = document.createElement('div');
+        row.className = 'bubble-row ' + (isMe ? 'from-me' : 'from-them');
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble ' + (isMe ? 'sent' : 'received');
+
+        if (data.image) {
+            const wrap = document.createElement('div');
+            wrap.className = 'bubble-img-wrap';
+
+            const img = document.createElement('img');
+            img.className = 'bubble-img';
+            img.src = data.image;
+            img.alt = 'gambar';
+
+            const dl = document.createElement('a');
+            dl.className = 'bubble-download';
+            dl.href = data.image;
+            dl.download = 'fox-chat-image-' + (data.waktu || Date.now()) + '.jpg';
+            dl.title = 'Unduh gambar';
+            dl.innerText = '⬇';
+
+            wrap.appendChild(img);
+            wrap.appendChild(dl);
+            bubble.appendChild(wrap);
+        }
+
+        if (data.text) {
+            const textNode = document.createElement('div');
+            textNode.innerText = data.text;
+            bubble.appendChild(textNode);
+        }
+
+        const time = document.createElement('span');
+        time.className = 'meta-time';
+        time.innerText = formatTime(data.waktu);
+        bubble.appendChild(time);
+
+        row.appendChild(bubble);
+        chatBox.appendChild(row);
+    }
+
+    // ====== Sending messages ======
+    function kirimPesan() {
+        if (!activeContactId) return;
+        const inputField = document.getElementById('chat-input');
+        const teksPesan = inputField.value.trim();
+
+        if (teksPesan === "" && !pendingImageData) return;
+
+        const cId = chatIdFor(myId, activeContactId);
+        const payload = {
+            from: myId,
+            waktu: Date.now()
+        };
+        if (teksPesan !== "") payload.text = teksPesan;
+        if (pendingImageData) payload.image = pendingImageData;
+
+        db.ref('chats/' + cId + '/messages').push(payload);
+
+        inputField.value = "";
+        cancelImagePreview();
+    }
+
+    document.getElementById('chat-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') kirimPesan();
+    });
+
+    // ====== Image attach for chat ======
+    document.getElementById('chat-image-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        fileToDataUrl(file, (dataUrl) => {
+            pendingImageData = dataUrl;
+            document.getElementById('image-preview-img').src = dataUrl;
+            document.getElementById('image-preview-bar').classList.remove('hidden');
+        });
+        e.target.value = '';
+    });
+
+    function cancelImagePreview() {
+        pendingImageData = null;
+        document.getElementById('image-preview-bar').classList.add('hidden');
+        document.getElementById('image-preview-img').src = '';
+    }
+
+    // ====== Navigation ======
+    function navigate(targetScreenId) {
+        if (targetScreenId === 'edit-profile-screen') {
+            document.getElementById('edit-username').value = myName;
+        }
+        const screens = document.querySelectorAll('.screen');
+        screens.forEach(screen => {
+            screen.classList.add('hidden');
+        });
+        document.getElementById(targetScreenId).classList.remove('hidden');
+    }
+
+    // ====== App start ======
+    function startApp() {
+        navigate('main-app-screen');
+        listenToContacts();
+    }
+
+    // ====== Boot ======
+    (function init() {
+        if (loadProfileLocal()) {
+            applyProfileEverywhere();
+            pushMyProfileToDb();
+            startApp();
+        } else {
+            navigate('login-screen');
+        }
+    })();
+</script>
+
+</body>
+</html>
