@@ -654,5 +654,49 @@
     })();
 </script>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // GANTI dengan config Firebase project dashboard kamu (sama seperti firebase-config.js)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBjCQxwJVtgYJlQu6YPGEaP2NeH7GclHRU",
+  authDomain: "fixh-dashboard-web.firebaseapp.com",
+  projectId: "fixh-dashboard-web",
+  storageBucket: "fixh-dashboard-web.firebasestorage.app",
+  messagingSenderId: "200838378585",
+  appId: "1:200838378585:web:3135a71639d0886053ad48",
+  };
+
+  // GANTI dengan ID dokumen project ini di koleksi "projects" (contoh: "fox-chat")
+  const PROJECT_ID = "GANTI_PROJECT_ID_DI_FIRESTORE";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  function showMaintenance() {
+    document.documentElement.innerHTML = `
+      <head><meta charset="UTF-8"><title>Sedang maintenance</title></head>
+      <body style="margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+                   background:#0f1115; color:#eef0f3; font-family:system-ui, sans-serif; text-align:center; padding:20px;">
+        <div>
+          <h1 style="font-size:22px; margin-bottom:8px;">Situs sedang dimatikan sementara</h1>
+          <p style="color:#9aa1ad; font-size:14px;">Coba kunjungi lagi beberapa saat lagi.</p>
+        </div>
+      </body>
+    `;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, "projects", PROJECT_ID));
+    if (snap.exists() && snap.data().status === "offline") {
+      showMaintenance();
+    }
+  } catch (e) {
+    // kalau gagal cek (misal lagi gak ada internet), biarin situs tetap tampil normal
+    console.warn("Gagal cek status maintenance:", e);
+  }
+</script>
+    
 </body>
 </html>
